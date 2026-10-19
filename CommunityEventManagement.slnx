@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="CommunityEventManagement.Tests/CommunityEventManagement.Tests.csproj" Id="28f1be4c-9030-442f-972f-674741e0eef8" />
+  <Project Path="CommunityEventManagement/CommunityEventManagement.csproj" />
+</Solution>

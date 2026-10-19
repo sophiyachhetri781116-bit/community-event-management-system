@@ -1,0 +1,132 @@
+﻿@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@page "/participants"
+@rendermode InteractiveServer
+@using CommunityEventManagement.Data.Models
+@using CommunityEventManagement.Services
+@inject ParticipantService ParticipantService
+@inject NavigationManager Navigation
+
+<PageTitle>Participants</PageTitle>
+
+<!-- HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="fw-bold mb-0" style="color:#2e1065;">Participants</h2>
+        <p class="text-muted small mb-0">
+            Registered community members participating in events
+        </p>
+    </div>
+
+    <AuthorizeView Roles="Admin">
+        <Authorized>
+            <button class="btn btn-primary px-4" @onclick="Add">
+                + Add Participant
+            </button>
+        </Authorized>
+    </AuthorizeView>
+</div>
+
+<!-- STAT CARD -->
+<div class="row mb-3">
+    <div class="col-md-3">
+        <div class="card text-center stat-card p-3">
+            <div class="stat-number">@(participants?.Count ?? 0)</div>
+            <div class="stat-label">Participants</div>
+        </div>
+    </div>
+</div>
+
+<!-- PARTICIPANTS TABLE -->
+<div class="card p-3">
+    @if (participants is null)
+    {
+        <div class="text-center py-4">
+            <div class="spinner-border" style="color:#5b2a9e;" role="status"></div>
+        </div>
+    }
+    else if (participants.Count == 0)
+    {
+        <div class="empty-state py-4">
+            <p class="fw-semibold">No participants found.</p>
+
+            <AuthorizeView Roles="Admin">
+                <Authorized>
+                    <p class="small text-muted">
+                        Click <strong>+ Add Participant</strong> to create the first participant.
+                    </p>
+                </Authorized>
+            </AuthorizeView>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var p in participants)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@p.Name</td>
+
+                            <td class="text-muted">
+                                @p.Email
+                            </td>
+
+                            <td>
+                                <span class="badge bg-primary rounded-pill px-3">
+                                    @p.Phone
+                                </span>
+                            </td>
+
+                            <td class="text-end">
+                                <AuthorizeView Roles="Admin">
+                                    <Authorized>
+                                        <button class="btn btn-sm btn-outline-secondary me-1"
+                                                @onclick="() => Edit(p.Id)">
+                                            Edit
+                                        </button>
+
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                @onclick="() => Delete(p.Id)">
+                                            Delete
+                                        </button>
+                                    </Authorized>
+                                </AuthorizeView>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<Participant>? participants;
+
+    protected override void OnInitialized() => Load();
+
+    private void Load() => participants = ParticipantService.GetList();
+
+    private void Add() =>
+        Navigation.NavigateTo("/participants/add");
+
+    private void Edit(int id) =>
+        Navigation.NavigateTo($"/participants/edit/{id}");
+
+    private void Delete(int id)
+    {
+        ParticipantService.Delete(id);
+        Load();
+    }
+}

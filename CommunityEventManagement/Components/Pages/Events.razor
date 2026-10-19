@@ -1,0 +1,154 @@
+﻿@page "/events"
+@rendermode InteractiveServer
+@using CommunityEventManagement.Data.Models
+@using CommunityEventManagement.Services
+@inject IEventService EventService
+@inject VenueService VenueService
+@inject ActivityService ActivityService
+@inject NavigationManager Navigation
+
+<PageTitle>Events</PageTitle>
+
+<div class="events-header mb-3">
+    <h2 class="mb-0">Upcoming Events</h2>
+</div>
+
+
+<AuthorizeView Roles="Admin">
+    <button class="btn btn-primary mb-3" @onclick="AddEvent">+ Add Event</button>
+</AuthorizeView>
+
+<div class="card p-3 mb-3">
+    <h6>Filter Events</h6>
+    <div class="row g-2">
+        <div class="col-md-2">
+            <label class="form-label">Date</label>
+            <input type="date" class="form-control" @bind="filterDate" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Venue</label>
+            <select class="form-select" @bind="filterVenueId">
+                <option value="0">All Venues</option>
+                @foreach (var v in venues)
+                {
+                    <option value="@v.Id">@v.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Activity</label>
+            <select class="form-select" @bind="filterActivityId">
+                <option value="0">All Activities</option>
+                @foreach (var a in activities)
+                {
+                    <option value="@a.Id">@a.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Activity Type</label>
+            <select class="form-select" @bind="filterActivityType">
+                <option value="">All Types</option>
+                @foreach (var t in activityTypes)
+                {
+                    <option value="@t">@t</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4 d-flex align-items-end gap-2">
+            <button class="btn btn-filter" @onclick="ApplyFilter">Filter</button>
+            <button class="btn btn-outline-secondary" @onclick="ClearFilter">Clear</button>
+            <AuthorizeView Roles="Admin">
+                <button class="btn btn-outline-dark" @onclick="ShowAll">All Events (incl. past)</button>
+            </AuthorizeView>
+        </div>
+    </div>
+</div>
+
+<div class="card p-3">
+    @if (events is null)
+    {
+        <p>Loading...</p>
+    }
+    else if (events.Count == 0)
+    {
+        <p>No events found.</p>
+    }
+    else
+    {
+        <table class="table table-striped mb-0">
+            <thead><tr><th>Name</th><th>Date</th><th>Time</th><th>Description</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var ev in events)
+                {
+                    <tr>
+                        <td>@ev.Name</td>
+                        <td>@ev.Date.ToString("dd MMM yyyy")</td>
+                        <td>@ev.Time.ToString("HH:mm")</td>
+                        <td>@ev.Description</td>
+                        <td>
+                            <AuthorizeView Roles="Admin">
+                                <button class="btn btn-sm btn-secondary" @onclick="() => EditEvent(ev.Id)">Edit</button>
+                                <button class="btn btn-sm btn-danger" @onclick="() => Delete(ev.Id)">Delete</button>
+                            </AuthorizeView>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private List<Event>? events;
+    private List<Venue> venues = new();
+    private List<Activity> activities = new();
+    private List<string> activityTypes = new();
+
+    private DateOnly? filterDate;
+    private int filterVenueId;
+    private int filterActivityId;
+    private string filterActivityType = "";
+
+    protected override void OnInitialized()
+    {
+        venues = VenueService.GetList();
+        activities = ActivityService.GetList();
+        activityTypes = activities
+            .Where(a => !string.IsNullOrWhiteSpace(a.Type))
+            .Select(a => a.Type!)
+            .Distinct()
+            .OrderBy(t => t)
+            .ToList();
+        Load();
+    }
+
+    // Default view: a list of all UPCOMING events, matching the brief exactly
+    private void Load() => events = EventService.GetUpcomingEvents();
+
+    private void ApplyFilter()
+    {
+        int? venueId = filterVenueId == 0 ? null : filterVenueId;
+        int? activityId = filterActivityId == 0 ? null : filterActivityId;
+        string? activityType = string.IsNullOrEmpty(filterActivityType) ? null : filterActivityType;
+        events = EventService.FilterEvents(filterDate, venueId, activityId, activityType)
+            .Where(e => e.Date >= DateOnly.FromDateTime(DateTime.Now))
+            .ToList();
+    }
+
+    private void ClearFilter()
+    {
+        filterDate = null;
+        filterVenueId = 0;
+        filterActivityId = 0;
+        filterActivityType = "";
+        Load();
+    }
+
+    // Admin-only: see every event ever created, including past ones, for management purposes
+    private void ShowAll() => events = EventService.GetList();
+
+    private void AddEvent() => Navigation.NavigateTo("/events/add");
+    private void EditEvent(int id) => Navigation.NavigateTo($"/events/edit/{id}");
+    private void Delete(int id) { EventService.Delete(id); Load(); }
+}

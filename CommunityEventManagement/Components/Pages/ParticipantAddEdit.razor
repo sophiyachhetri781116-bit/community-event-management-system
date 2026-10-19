@@ -1,0 +1,57 @@
+﻿@page "/participants/add"
+@page "/participants/edit/{Id:int}"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@using CommunityEventManagement.Data.Models
+@using CommunityEventManagement.Services
+@inject ParticipantService ParticipantService
+@inject NavigationManager Navigation
+
+<PageTitle>@(Id == 0 ? "Add Participant" : "Edit Participant")</PageTitle>
+<h3>@(Id == 0 ? "Add Participant" : "Edit Participant")</h3>
+
+<EditForm Model="@participant" OnValidSubmit="Save">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label class="form-label">Name</label>
+        <InputText class="form-control" @bind-Value="participant.Name" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <InputText class="form-control" @bind-Value="participant.Email" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Phone</label>
+        <InputText class="form-control" @bind-Value="participant.Phone" />
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+</EditForm>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private Participant participant = new();
+
+    protected override void OnParametersSet()
+    {
+        if (Id != 0)
+        {
+            var existing = ParticipantService.GetById(Id);
+            if (existing != null) participant = existing;
+        }
+    }
+
+    private void Save()
+    {
+        if (Id == 0)
+            ParticipantService.Add(participant);
+        else
+            ParticipantService.Update(participant);
+
+        Navigation.NavigateTo("/participants");
+    }
+
+    private void Cancel() => Navigation.NavigateTo("/participants");
+}

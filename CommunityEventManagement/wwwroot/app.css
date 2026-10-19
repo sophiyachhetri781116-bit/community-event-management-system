@@ -1,0 +1,265 @@
+body {
+    background-color: #f8f6fc;
+}
+
+html, body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+a, .btn-link {
+    color: #4f1f91;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #5b2a9e;
+    border-color: #4f1f91;
+}
+
+    .btn-primary:hover {
+        background-color: #4f1f91;
+        border-color: #44197d;
+    }
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #9c6fe0;
+}
+
+.content {
+    padding-top: 1.1rem;
+}
+
+h1:focus {
+    outline: none;
+}
+
+.valid.modified:not([type=checkbox]) {
+    outline: 1px solid #26b050;
+}
+
+.invalid {
+    outline: 1px solid #e50000;
+}
+
+.validation-message {
+    color: #e50000;
+}
+
+.darker-border-checkbox.form-check-input {
+    border-color: #929292;
+}
+
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
+    color: var(--bs-secondary-color);
+    text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
+    text-align: start;
+}
+
+/* =========================
+   Hero Banner
+========================= */
+
+.cems-hero {
+    background: linear-gradient(135deg, #6d28d9 0%, #4c1d95 50%, #2e1065 100%);
+    color: white;
+    border-radius: 1rem;
+    padding: 2rem;
+}
+
+    .cems-hero .lead {
+        color: rgba(255,255,255,0.9);
+    }
+
+/* =========================
+   Cards
+========================= */
+
+.card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
+
+/* =========================
+   Tables
+========================= */
+
+.table thead {
+    background-color: #ece5ff;
+    color: #4f1f91;
+}
+
+.table tbody tr:hover {
+    background-color: #f3edff;
+    transition: 0.2s;
+}
+
+/* =========================
+   Buttons
+========================= */
+
+.btn {
+    border-radius: 0.5rem;
+}
+
+.btn-outline-primary {
+    color: #5b2a9e;
+    border-color: #5b2a9e;
+}
+
+    .btn-outline-primary:hover {
+        background-color: #5b2a9e;
+        border-color: #5b2a9e;
+        color: #fff;
+    }
+
+.btn-filter {
+    background-color: #5b2a9e;
+    border-color: #5b2a9e;
+    color: white;
+}
+
+    .btn-filter:hover {
+        background-color: #4f1f91;
+        border-color: #4f1f91;
+        color: white;
+    }
+
+/* =========================
+   Gradient Section Headers
+========================= */
+
+.events-header {
+    background: linear-gradient(135deg, #6d28d9, #4c1d95);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 1rem;
+}
+
+/* =========================
+   Statistics Cards
+========================= */
+
+.stat-card {
+    border: none;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, #6d28d9, #4c1d95);
+    color: white;
+    box-shadow: 0 4px 14px rgba(91,42,158,0.35);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.stat-label {
+    opacity: 0.9;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* =========================
+   Filter Cards
+========================= */
+
+.filter-card {
+    background: #faf8ff;
+    border: 1px solid #ede8f8 !important;
+    border-radius: 0.875rem;
+}
+
+/* =========================
+   Empty States
+========================= */
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #777;
+}
+
+    .empty-state .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+/* =========================
+   Badges
+========================= */
+
+.badge-activity {
+    display: inline-block;
+    background-color: #5b2a9e;
+    color: white;
+    border-radius: 2rem;
+    padding: 0.3em 0.75em;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.badge-venue {
+    display: inline-block;
+    background-color: #e8f4fd;
+    color: #0077cc;
+    border-radius: 2rem;
+    padding: 0.3em 0.75em;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* =========================
+   Availability Badges
+========================= */
+
+.spots-badge {
+    display: inline-block;
+    background: #e8f8ec;
+    color: #1a7a34;
+    border-radius: 2rem;
+    padding: 0.25em 0.8em;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+    .spots-badge.low {
+        background: #fff3e0;
+        color: #b45309;
+    }
+
+    .spots-badge.full {
+        background: #fde8e8;
+        color: #c0392b;
+    }
+
+/* =========================
+   Utility Classes
+========================= */
+
+.text-purple {
+    color: #5b2a9e !important;
+}
+
+.section-divider {
+    border: none;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #ede8f8, transparent);
+    margin: 2.5rem 0;
+}

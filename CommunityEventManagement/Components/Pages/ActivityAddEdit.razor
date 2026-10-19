@@ -1,0 +1,53 @@
+﻿@page "/activities/add"
+@page "/activities/edit/{Id:int}"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@using CommunityEventManagement.Data.Models
+@using CommunityEventManagement.Services
+@inject ActivityService ActivityService
+@inject NavigationManager Navigation
+
+<PageTitle>@(Id == 0 ? "Add Activity" : "Edit Activity")</PageTitle>
+<h3>@(Id == 0 ? "Add Activity" : "Edit Activity")</h3>
+
+<EditForm Model="@activity" OnValidSubmit="Save">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label class="form-label">Name</label>
+        <InputText class="form-control" @bind-Value="activity.Name" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Type</label>
+        <InputText class="form-control" @bind-Value="activity.Type" />
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+</EditForm>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private Activity activity = new();
+
+    protected override void OnParametersSet()
+    {
+        if (Id != 0)
+        {
+            var existing = ActivityService.GetById(Id);
+            if (existing != null) activity = existing;
+        }
+    }
+
+    private void Save()
+    {
+        if (Id == 0)
+            ActivityService.Add(activity);
+        else
+            ActivityService.Update(activity);
+
+        Navigation.NavigateTo("/activities");
+    }
+
+    private void Cancel() => Navigation.NavigateTo("/activities");
+}

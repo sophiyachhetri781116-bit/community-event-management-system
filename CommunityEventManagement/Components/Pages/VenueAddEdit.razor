@@ -1,0 +1,57 @@
+﻿@page "/venues/add"
+@page "/venues/edit/{Id:int}"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@using CommunityEventManagement.Data.Models
+@using CommunityEventManagement.Services
+@inject VenueService VenueService
+@inject NavigationManager Navigation
+
+<PageTitle>@(Id == 0 ? "Add Venue" : "Edit Venue")</PageTitle>
+<h3>@(Id == 0 ? "Add Venue" : "Edit Venue")</h3>
+
+<EditForm Model="@venue" OnValidSubmit="Save">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label class="form-label">Name</label>
+        <InputText class="form-control" @bind-Value="venue.Name" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Address</label>
+        <InputText class="form-control" @bind-Value="venue.Address" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Capacity</label>
+        <InputNumber class="form-control" @bind-Value="venue.Capacity" />
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+</EditForm>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private Venue venue = new();
+
+    protected override void OnParametersSet()
+    {
+        if (Id != 0)
+        {
+            var existing = VenueService.GetById(Id);
+            if (existing != null) venue = existing;
+        }
+    }
+
+    private void Save()
+    {
+        if (Id == 0)
+            VenueService.Add(venue);
+        else
+            VenueService.Update(venue);
+
+        Navigation.NavigateTo("/venues");
+    }
+
+    private void Cancel() => Navigation.NavigateTo("/venues");
+}

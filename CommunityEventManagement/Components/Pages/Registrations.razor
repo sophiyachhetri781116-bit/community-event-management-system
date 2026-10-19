@@ -1,0 +1,180 @@
+﻿@page "/registrations"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@using CommunityEventManagement.Data.Models
+@using CommunityEventManagement.Services
+@using CommunityEventManagement.Exceptions
+@inject RegistrationService RegistrationService
+@inject IEventService EventService
+@inject ParticipantService ParticipantService
+
+<PageTitle>Registrations</PageTitle>
+<h3>Event Registrations</h3>
+
+<div class="card p-3 mb-4">
+    <h5>Register @(isAdmin ? "a Participant" : "Yourself") for an Event</h5>
+
+    <div class="mb-2">
+        <label class="form-label">Event</label>
+        <select class="form-select" @bind="selectedEventId">
+            <option value="0">-- Select Event --</option>
+            @foreach (var ev in events)
+            {
+                <option value="@ev.Id">@ev.Name (@ev.Date.ToString("dd MMM yyyy"))</option>
+            }
+        </select>
+    </div>
+
+    @if (isAdmin)
+    {
+        <div class="mb-2">
+            <label class="form-label">Participant</label>
+            <select class="form-select" @bind="selectedParticipantId">
+                <option value="0">-- Select Participant --</option>
+                @foreach (var p in participants)
+                {
+                    <option value="@p.Id">@p.Name</option>
+                }
+            </select>
+        </div>
+    }
+    else if (myParticipant != null)
+    {
+        <p class="text-muted">Registering as: <strong>@myParticipant.Name</strong> (@myParticipant.Email)</p>
+    }
+
+    <button class="btn btn-primary" @onclick="Register">Register</button>
+
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <p class="mt-2 fw-bold @(isError ? "text-danger" : "text-success")">@message</p>
+    }
+</div>
+
+<div class="card p-3">
+    <h5>@(isAdmin ? "All Registrations" : "My Registrations")</h5>
+    @if (registrations.Count == 0)
+    {
+        <p class="text-muted mb-0">No registrations yet.</p>
+    }
+    else
+    {
+        <table class="table table-striped mb-0">
+            <thead><tr><th>Event</th><th>Participant</th><th>Registered On</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var r in registrations)
+                {
+                    <tr>
+                        <td>@r.Event?.Name</td>
+                        <td>@r.Participant?.Name</td>
+                        <td>@r.RegistrationDate.ToString("dd MMM yyyy HH:mm")</td>
+                        <td>@r.Status</td>
+                        <td><button class="btn btn-sm btn-danger" @onclick="() => Delete(r.Id)">Cancel</button></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    [CascadingParameter] private Task<AuthenticationState>? AuthStateTask { get; set; }
+
+    private bool isAdmin;
+    private Participant? myParticipant;
+    private List<Event> events = new();
+    private List<Participant> participants = new();
+    private List<Registration> registrations = new();
+    private int selectedEventId;
+    private int selectedParticipantId;
+    private string? message;
+    private bool isError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateTask!;
+        var user = authState.User;
+        isAdmin = user.IsInRole("Admin");
+
+        events = EventService.GetList();
+
+        if (isAdmin)
+        {
+            participants = ParticipantService.GetList();
+            registrations = RegistrationService.GetList();
+        }
+        else
+        {
+            var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "";
+            var email = user.Identity?.Name ?? "";
+            myParticipant = ParticipantService.GetOrCreateForUser(userId, email, email);
+            registrations = RegistrationService.GetList()
+                .Where(r => r.ParticipantId == myParticipant.Id)
+                .ToList();
+        }
+    }
+
+    private void Register()
+    {
+        message = "";
+        int participantId = isAdmin ? selectedParticipantId : (myParticipant?.Id ?? 0);
+
+        if (selectedEventId == 0 || participantId == 0)
+        {
+            message = isAdmin ? "Please select both an event and a participant." : "Please select an event.";
+            isError = true;
+            return;
+        }
+
+        try
+        {
+            RegistrationService.Register(selectedEventId, participantId);
+            message = "Registered successfully!";
+            isError = false;
+            selectedEventId = 0;
+            selectedParticipantId = 0;
+            Reload();
+        }
+        catch (DuplicateRegistrationException ex)
+        {
+            message = ex.Message;
+            isError = true;
+        }
+        catch (VenueCapacityExceededException ex)
+        {
+            message = ex.Message;
+            isError = true;
+        }
+        catch (EntityNotFoundException ex)
+        {
+            message = ex.Message;
+            isError = true;
+        }
+        catch (Exception)
+        {
+            message = "An unexpected error occurred. Please try again.";
+            isError = true;
+        }
+    }
+
+    private void Reload()
+    {
+        if (isAdmin)
+        {
+            registrations = RegistrationService.GetList();
+        }
+        else if (myParticipant != null)
+        {
+            registrations = RegistrationService.GetList()
+                .Where(r => r.ParticipantId == myParticipant.Id)
+                .ToList();
+        }
+    }
+
+    private void Delete(int id)
+    {
+        RegistrationService.Delete(id);
+        Reload();
+    }
+}

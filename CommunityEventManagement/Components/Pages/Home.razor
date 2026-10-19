@@ -1,0 +1,97 @@
+﻿@page "/"
+@rendermode InteractiveServer
+
+<PageTitle>Community Event Management System</PageTitle>
+
+<div class="cems-hero p-5 mb-4">
+    <h1 class="display-4 fw-bold">Community Event Management System</h1>
+    <p class="lead">
+        Welcome to the Community Event Management System.
+        <br />
+        Browse upcoming events, explore community activities,
+        and register to participate in local events.
+    </p>
+</div>
+
+<div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Events</h5>
+                <p class="card-text">
+                    Browse, filter, and manage upcoming community events.
+                </p>
+                <a href="/events" class="btn btn-primary btn-sm">
+                    View Events
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <AuthorizeView Roles="Admin">
+        <Authorized>
+
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Venues</h5>
+                        <p class="card-text">
+                            Manage the locations where events are held.
+                        </p>
+                        <a href="/venues" class="btn btn-primary btn-sm">
+                            View Venues
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Activities</h5>
+                        <p class="card-text">
+                            Manage workshops, talks, and games linked to events.
+                        </p>
+                        <a href="/activities" class="btn btn-primary btn-sm">
+                            View Activities
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </Authorized>
+    </AuthorizeView>
+
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Registrations</h5>
+                <p class="card-text">
+                    Register participants for events and view their status.
+                </p>
+                <a href="/registrations" class="btn btn-primary btn-sm">
+                    View Registrations
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title fw-bold">Upcoming Events</h5>
+                <p class="card-text text-muted">
+                    View all upcoming community events and apply filters by date,
+                    venue, activity, or activity type.
+                </p>
+                <a href="/events" class="btn btn-primary mt-2">
+                    View Upcoming Events
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
